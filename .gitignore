@@ -1,4 +1,5 @@
 *.pdf
 build/
+data/
 .vscode
 *.zip
