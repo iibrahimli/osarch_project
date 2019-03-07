@@ -21,7 +21,7 @@
 
 int main(int argc, char const *argv[]){
 
-    
+    usage();
 
     return 0;
 }
