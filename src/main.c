@@ -25,23 +25,32 @@ int main(int argc, char *argv[]){
     useconds_t interval = DEF_INTERVAL * 1000;
     int        limit    = DEF_LIMIT;
     int        chkexit  = DEF_CHKEXIT;
+    char **    prog;    // program and its arguments to run
 
 
+    // parse short arguments
     int option = 0;
     while((option = getopt(argc, argv, "+t:i:l:c")) != -1){
         switch (option){
             case 't':
-                printf("-t: %s\n", optarg); break;
+                timefmt = optarg; printf("-t: %s\n", optarg); break;
             case 'i':
-                printf("-i: %s\n", optarg); break;
+                interval = atoi(optarg); printf("-i: %s\n", optarg); break;
             case 'l':
-                printf("-l: %s\n", optarg); break;
+                limit = atoi(optarg); printf("-l: %s\n", optarg); break;
             case 'c':
-                printf("-c: set\n"); break;
+                chkexit = 1; printf("-c: set\n"); break;
             case '?':
                 fatal_error("Invalid option"); break;
         }
     }
+
+    // parse program and arguments for execvp
+    prog = malloc(sizeof *prog * (argc-optind+1));
+    for(int prog_idx=optind; prog_idx<argc; ++prog_idx){
+        prog[prog_idx - optind] = argv[prog_idx];
+    }
+    prog[argc-optind] = NULL;
 
     return 0;
 }
