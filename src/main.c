@@ -15,7 +15,7 @@
 #define DEF_LIMIT    0
 #define DEF_CHKEXIT  0
 
-#define OUT_BUF_SIZE (1<<16)
+#define OUT_BUF_SIZE (1<<17)
 
 
 int main(int argc, char *argv[]){
@@ -24,9 +24,13 @@ int main(int argc, char *argv[]){
     useconds_t interval = DEF_INTERVAL * 1000;
     int        limit    = DEF_LIMIT;
     int        chkexit  = DEF_CHKEXIT;
-    char **    prog;    // program and its arguments to run
+    char **    prog;    // program and argument vector
 
     // buffers for program output and last output to be compared
+    // these buffers act like the frame buffers in double buffered rendering
+    // one of them points to current buffer where the program output is written
+    // the other one points to last output to compare with current output
+    // and they are swapped on every iteration
     char *     out_buf      = calloc(OUT_BUF_SIZE, sizeof *out_buf);
     char *     last_out_buf = calloc(OUT_BUF_SIZE, sizeof *last_out_buf);
 
@@ -47,8 +51,13 @@ int main(int argc, char *argv[]){
                 fatal_error("Invalid option"); break;
         }
     }
+    // check arguments
+    if(interval <= 0) fatal_error("Interval should be positive");
+    if(limit < 0) fatal_error("Limit should be non-negative");
 
-    // parse program and its arguments for execvp
+
+    // parse program and its arguments
+    // a NULL-terminated argument vector is prepared for execvp 
     if(argc-optind == 0) fatal_error("No executable supplied");
     prog = malloc(sizeof *prog * (argc-optind+1));
     for(int prog_idx=optind; prog_idx<argc; ++prog_idx){
@@ -59,17 +68,27 @@ int main(int argc, char *argv[]){
 
     // execute program for limit iterations (indefinitely if limit == 0)    
     int prog_status, last_prog_status = 0;
+    char first_iter = 1;
     for(int iter = 0; iter < ((limit) ? limit : 1); iter += (limit) ? 1 : 0){
         printf("iter %d\n", iter);
 
         // print time if format string is set
         if(timefmt) print_time(timefmt);
 
+        if(first_iter){
+            // first iteration always prints the output
+            last_prog_status = run_prog(prog, out_buf, OUT_BUF_SIZE);
+            printf("%s\n", out_buf);
+            printf("exit: %d\n", prog_status);
+        }
+
         if(chkexit){
             // if detect should check the exit status, also compare with last exit status
             if((prog_status = run_prog(prog, out_buf, OUT_BUF_SIZE)) != last_prog_status){
                 // print output buffer and continue to the next iteration
                 printf("%s\n", out_buf);
+                printf("exit: %d\n", prog_status);
+                usleep(interval);
                 continue;
             }
             last_prog_status = prog_status;
@@ -82,13 +101,23 @@ int main(int argc, char *argv[]){
         // check output 
         if(memcmp(out_buf, last_out_buf, OUT_BUF_SIZE)){
             // if output differs from the last output
-            
+            printf("%s\n", out_buf);
         }
 
+        // swap buffers for next iteration
+        swap_buffers(out_buf, last_out_buf);
 
+        // its not the first iteration anymore
+        first_iter = 0;
+
+        // sleep between iterations
         usleep(interval);
     }
 
+
+    free(prog);
+    free(out_buf);
+    free(last_out_buf);
 
     return 0;
 }
