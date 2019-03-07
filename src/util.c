@@ -34,3 +34,11 @@ void print_time(char *fmt){
     strftime(tstr, 64, fmt, info);
     printf("%s\n", tstr);
 }
+
+
+void swap_buffers(char *b1, char *b2){
+    char *temp;
+    temp = b2;
+    b2 = b1;
+    b1 = temp;
+}

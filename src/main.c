@@ -26,9 +26,9 @@ int main(int argc, char *argv[]){
     int        chkexit  = DEF_CHKEXIT;
     char **    prog;    // program and its arguments to run
 
-    // buffer for program output
-    char *     out_buf  = calloc(OUT_BUF_SIZE, sizeof *out_buf);
-    char *     last_out_buf;
+    // buffers for program output and last output to be compared
+    char *     out_buf      = calloc(OUT_BUF_SIZE, sizeof *out_buf);
+    char *     last_out_buf = calloc(OUT_BUF_SIZE, sizeof *last_out_buf);
 
 
     // parse short arguments
@@ -48,7 +48,8 @@ int main(int argc, char *argv[]){
         }
     }
 
-    // parse program and arguments for execvp
+    // parse program and its arguments for execvp
+    if(argc-optind == 0) fatal_error("No executable supplied");
     prog = malloc(sizeof *prog * (argc-optind+1));
     for(int prog_idx=optind; prog_idx<argc; ++prog_idx){
         prog[prog_idx - optind] = argv[prog_idx];
@@ -65,8 +66,11 @@ int main(int argc, char *argv[]){
         if(timefmt) print_time(timefmt);
 
         if(chkexit){
+            // if detect should check the exit status, also compare with last exit status
             if((prog_status = run_prog(prog, out_buf, OUT_BUF_SIZE)) != last_prog_status){
+                // print output buffer and continue to the next iteration
                 printf("%s\n", out_buf);
+                continue;
             }
             last_prog_status = prog_status;
         }
@@ -78,7 +82,7 @@ int main(int argc, char *argv[]){
         // check output 
         if(memcmp(out_buf, last_out_buf, OUT_BUF_SIZE)){
             // if output differs from the last output
-
+            
         }
 
 

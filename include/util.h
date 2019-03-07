@@ -28,4 +28,8 @@ int run_prog(char **prog, char *output_buf, int buf_size);
 void print_time(char *fmt);
 
 
+// swaps pointers to buffers
+void swap_buffers(char *b1, char *b2);
+
+
 #endif // UTIL_H
