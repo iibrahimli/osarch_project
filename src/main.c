@@ -68,26 +68,24 @@ int main(int argc, char *argv[]){
 
     // execute program for limit iterations (indefinitely if limit == 0)    
     int prog_status, last_prog_status = 0;
-    char first_iter = 1;
     for(int iter = 0; iter < ((limit) ? limit : 1); iter += (limit) ? 1 : 0){
-        printf("iter %d\n", iter);
+        printf("--------- iter %d ---------\n", iter);
 
+        // printf("=== out_buf ===\n");
+        // printf("%s\n", out_buf);
+        // printf("=== last_out_buf ===\n");
+        // printf("%s\n", last_out_buf);
         // print time if format string is set
         if(timefmt) print_time(timefmt);
 
-        if(first_iter){
-            // first iteration always prints the output
-            last_prog_status = run_prog(prog, out_buf, OUT_BUF_SIZE);
-            printf("%s\n", out_buf);
-            printf("exit: %d\n", prog_status);
-        }
-
         if(chkexit){
+            memset(out_buf, 0, OUT_BUF_SIZE);            
             // if detect should check the exit status, also compare with last exit status
             if((prog_status = run_prog(prog, out_buf, OUT_BUF_SIZE)) != last_prog_status){
                 // print output buffer and continue to the next iteration
                 printf("%s\n", out_buf);
                 printf("exit: %d\n", prog_status);
+                swap_buffers(out_buf, last_out_buf);
                 usleep(interval);
                 continue;
             }
@@ -98,17 +96,17 @@ int main(int argc, char *argv[]){
         memset(out_buf, 0, OUT_BUF_SIZE);
         last_prog_status = run_prog(prog, out_buf, OUT_BUF_SIZE);
 
+
+
         // check output 
         if(memcmp(out_buf, last_out_buf, OUT_BUF_SIZE)){
+
             // if output differs from the last output
             printf("%s\n", out_buf);
+
+            // swap buffers for next iteration
+            swap_buffers(out_buf, last_out_buf);
         }
-
-        // swap buffers for next iteration
-        swap_buffers(out_buf, last_out_buf);
-
-        // its not the first iteration anymore
-        first_iter = 0;
 
         // sleep between iterations
         usleep(interval);

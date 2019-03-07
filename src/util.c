@@ -1,4 +1,5 @@
 #include "../include/util.h"
+#include "../include/buffer.h"
 
 
 void fatal_error(const char *cause){
@@ -18,10 +19,39 @@ void usage(void){
 }
 
 
-int run_prog(char **prog, char *output_buf, int buf_size){
-    int status;
+int run_prog(char **prog, buffer *output_buf){
+    int status=0;
+    int rd;
 
-    return WEXITSTATUS(status);
+    int fd[2];
+    if(pipe(fd) == -1) fatal_error("Could not create pipe");
+
+    pid_t child = fork();
+    switch(child){
+        case -1:
+            // error
+            fatal_error("Could not fork");
+            break;
+    
+        case 0:
+            // child
+            dup2(fd[1], STDOUT_FILENO);
+            close(STDERR_FILENO);
+            close(fd[0]);
+            close(fd[1]);
+            execvp(prog[0], prog);
+            break;
+        
+        default:
+            // parent
+            close(fd[1]);
+            rd = read(fd[0], output_buf, buf_size);
+            if(rd < buf_size) output_buf[rd] = '\0';
+            wait(&status);
+            return WEXITSTATUS(status);
+    }
+
+    return 0;
 }
 
 
