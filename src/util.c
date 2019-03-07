@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "../include/util.h"
 
 
@@ -17,4 +15,22 @@ void usage(void){
     limit: 0\n\
     c: set\n\
     format: not set\n");
+}
+
+
+int run_prog(char **prog, char *output_buf, int buf_size){
+    int status;
+
+    return WEXITSTATUS(status);
+}
+
+
+void print_time(char *fmt){
+    if(!fmt) return;
+    char tstr[64];
+    time_t rawtime;
+    time(&rawtime);
+    struct tm* info = localtime(&rawtime);
+    strftime(tstr, 64, fmt, info);
+    printf("%s\n", tstr);
 }

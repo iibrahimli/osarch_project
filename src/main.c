@@ -1,13 +1,11 @@
 #include <unistd.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include <getopt.h>
 #include <time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
 #include "../include/util.h"
 
 
@@ -17,6 +15,7 @@
 #define DEF_LIMIT    0
 #define DEF_CHKEXIT  0
 
+#define OUT_BUF_SIZE (1<<16)
 
 
 int main(int argc, char *argv[]){
@@ -27,19 +26,23 @@ int main(int argc, char *argv[]){
     int        chkexit  = DEF_CHKEXIT;
     char **    prog;    // program and its arguments to run
 
+    // buffer for program output
+    char *     out_buf  = calloc(OUT_BUF_SIZE, sizeof *out_buf);
+    char *     last_out_buf;
+
 
     // parse short arguments
     int option = 0;
     while((option = getopt(argc, argv, "+t:i:l:c")) != -1){
         switch (option){
             case 't':
-                timefmt = optarg; printf("-t: %s\n", optarg); break;
+                timefmt = optarg; break;
             case 'i':
-                interval = atoi(optarg); printf("-i: %s\n", optarg); break;
+                interval = atoi(optarg)*1000; break;
             case 'l':
-                limit = atoi(optarg); printf("-l: %s\n", optarg); break;
+                limit = atoi(optarg); break;
             case 'c':
-                chkexit = 1; printf("-c: set\n"); break;
+                chkexit = 1; break;
             case '?':
                 fatal_error("Invalid option"); break;
         }
@@ -51,6 +54,37 @@ int main(int argc, char *argv[]){
         prog[prog_idx - optind] = argv[prog_idx];
     }
     prog[argc-optind] = NULL;
+
+
+    // execute program for limit iterations (indefinitely if limit == 0)    
+    int prog_status, last_prog_status = 0;
+    for(int iter = 0; iter < ((limit) ? limit : 1); iter += (limit) ? 1 : 0){
+        printf("iter %d\n", iter);
+
+        // print time if format string is set
+        if(timefmt) print_time(timefmt);
+
+        if(chkexit){
+            if((prog_status = run_prog(prog, out_buf, OUT_BUF_SIZE)) != last_prog_status){
+                printf("%s\n", out_buf);
+            }
+            last_prog_status = prog_status;
+        }
+
+        // zero out the current output buffer
+        memset(out_buf, 0, OUT_BUF_SIZE);
+        last_prog_status = run_prog(prog, out_buf, OUT_BUF_SIZE);
+
+        // check output 
+        if(memcmp(out_buf, last_out_buf, OUT_BUF_SIZE)){
+            // if output differs from the last output
+
+        }
+
+
+        usleep(interval);
+    }
+
 
     return 0;
 }
