@@ -89,11 +89,8 @@ int main(int argc, char *argv[]){
             prog_status = run_prog(prog, &out_buf);
 
             if(!buffers_equal(&out_buf, &last_out_buf)){
-                // print_buffer(&out_buf);
-                // if(chkexit && last_prog_status != prog_status) printf("exit: %d\n", prog_status);
-
-                printf("out_buf size:      %lu\n"
-                       "last_out_buf size: %lu\n", out_buf.size, last_out_buf.size);
+                print_buffer(&out_buf);
+                if(chkexit && last_prog_status != prog_status) printf("exit: %d\n", prog_status);
             }
 
             last_prog_status = prog_status;

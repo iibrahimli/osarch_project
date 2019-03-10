@@ -21,7 +21,7 @@ int buffers_equal(const buffer *b1, const buffer *b2){
 void clear_buffer(buffer *b){
     b->size = 0;
     b->capacity = DEF_BUF_SIZE;
-    b->data = realloc(b->data, DEF_BUF_SIZE);
+    b->data = realloc(b->data, b->capacity);
     if(!b->data) fatal_error("could not realloc buffer");
 }
 
