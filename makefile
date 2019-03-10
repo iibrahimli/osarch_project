@@ -1,8 +1,10 @@
 ###############################
 ##                           ##
-##    my generic makefile    ##
+##    le generic makefile    ##
+##   for C or C++ projects   ##
+##_ _ _ _ _ _ _ _ _ _ _ _ _ _##
 ##                           ##
-##      TODO: REMOVE -g      ##
+##      TODO: remove -g      ##
 ##                           ##
 ###############################
 
@@ -22,18 +24,12 @@ CPPFLAGS ?= $(INC_FLAGS) -O3 -g
 LDFLAGS ?= 
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
+	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 # C sources
 $(BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
 	$(CC) $(CPPFLAGS) -c $< -o $@
-
-# C++ sources
-$(BUILD_DIR)/%.cpp.o: %.cpp
-	$(MKDIR_P) $(dir $@)
-	$(CXX) $(CPPFLAGS) -c $< -o $@
-
 
 .PHONY: clean
 

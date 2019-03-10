@@ -1,5 +1,4 @@
 #include "../include/util.h"
-#include "../include/buffer.h"
 
 
 void fatal_error(const char *cause){
@@ -11,11 +10,11 @@ void fatal_error(const char *cause){
 void usage(void){
     printf("Usage: \n");
     printf("./detect [-t format] [-i interval] [-l limit] [-c] prog arg .. arg\n");
-    printf("default values:\n\
-    interval: 10000 ms\n\
-    limit: 0\n\
-    c: set\n\
-    format: not set\n");
+    printf("default values:\n"
+    "interval: 10000 ms\n"
+    "limit: 0\n"
+    "c: set\n"
+    "format: not set\n");
 }
 
 
@@ -24,13 +23,13 @@ int run_prog(char **prog, buffer *output_buf){
     int rd;
 
     int fd[2];
-    if(pipe(fd) == -1) fatal_error("Could not create pipe");
+    if(pipe(fd) == -1) fatal_error("could not create pipe");
 
     pid_t child = fork();
     switch(child){
         case -1:
             // error
-            fatal_error("Could not fork");
+            fatal_error("could not fork");
             break;
     
         case 0:
@@ -45,8 +44,10 @@ int run_prog(char **prog, buffer *output_buf){
         default:
             // parent
             close(fd[1]);
-            rd = read(fd[0], output_buf, buf_size);
-            if(rd < buf_size) output_buf[rd] = '\0';
+            
+            // get the output of the program
+            // read_into_buffer(fd[0], output_buf);
+
             wait(&status);
             return WEXITSTATUS(status);
     }
@@ -63,12 +64,4 @@ void print_time(char *fmt){
     struct tm* info = localtime(&rawtime);
     strftime(tstr, 64, fmt, info);
     printf("%s\n", tstr);
-}
-
-
-void swap_buffers(char *b1, char *b2){
-    char *temp;
-    temp = b2;
-    b2 = b1;
-    b1 = temp;
 }
