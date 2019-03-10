@@ -34,10 +34,18 @@ int main(int argc, char *argv[]){
                 timefmt = optarg;
                 break;
             case 'i':
+                if(atoi(optarg) <= 0){
+                    usage();
+                    fatal_error("interval should be positive");
+                }
                 interval = atoi(optarg)*1000;
                 break;
             case 'l':
                 limit = atoi(optarg);
+                if(limit < 0) {
+                    usage();
+                    fatal_error("limit should be non-negative");
+                }
                 break;
             case 'c':
                 chkexit = 1;
@@ -48,12 +56,8 @@ int main(int argc, char *argv[]){
         }
     }
 
-    if(interval == 0) interval = 10;
-
-    // check arguments
-    if(interval < 0) { usage(); fatal_error("interval should be positive"); }
-    if(limit < 0) { usage(); fatal_error("limit should be non-negative"); }
-
+    // DEBUG
+    // printf("timefmt: %s\ninterval: %d\nlimit: %d\nchkexit: %d\n", timefmt, interval, limit, chkexit);
 
     // parse program and its arguments
     // a NULL-terminated argument vector is prepared for execvp
@@ -84,7 +88,7 @@ int main(int argc, char *argv[]){
             // write output to LAST_OUT_BUF directly to avoid an unnecessary swap
             last_prog_status = run_prog(prog, &last_out_buf);
             print_buffer(&last_out_buf);
-            if(chkexit) printf("exit: %d\n", last_prog_status);
+            if(chkexit) printf("exit %d\n", last_prog_status);
         }
         else{
             // print only if there is a difference
@@ -92,7 +96,7 @@ int main(int argc, char *argv[]){
 
             if(!buffers_equal(&out_buf, &last_out_buf)){
                 print_buffer(&out_buf);
-                if(chkexit && last_prog_status != prog_status) printf("exit: %d\n", prog_status);
+                if(chkexit && last_prog_status != prog_status) printf("exit %d\n", prog_status);
             }
 
             last_prog_status = prog_status;
@@ -100,6 +104,7 @@ int main(int argc, char *argv[]){
             clear_buffer(&out_buf);
         }
 
+        fflush(stdout);
         ++iteration;
         usleep(interval);
     }

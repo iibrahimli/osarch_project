@@ -11,10 +11,10 @@ void usage(void){
     printf("Usage: \n");
     printf("./detect [-t format] [-i interval] [-l limit] [-c] prog arg .. arg\n");
     printf("default values:\n"
-    "interval: 10000 ms\n"
-    "limit: 0\n"
-    "c: set\n"
-    "format: not set\n");
+    "\tinterval: 10000 ms\n"
+    "\tlimit: 0\n"
+    "\tc: set\n"
+    "\tformat: not set\n");
 }
 
 
