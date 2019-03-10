@@ -21,6 +21,7 @@ void usage(void){
 int run_prog(char **prog, buffer *output_buf){
     int status=0;
 
+     // create pipe for prog
     int fd[2];
     if(pipe(fd) == -1) fatal_error("could not create pipe");
 
@@ -49,6 +50,8 @@ int run_prog(char **prog, buffer *output_buf){
             
             // read the output of the program into the buffer
             read_into_buffer(fd[0], output_buf);
+            
+            close(fd[0]);
 
             wait(&status);
             return WEXITSTATUS(status);

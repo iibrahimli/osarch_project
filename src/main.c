@@ -48,14 +48,16 @@ int main(int argc, char *argv[]){
         }
     }
 
+    if(interval == 0) interval = 10;
+
     // check arguments
-    if(interval <= 0) { fatal_error("interval should be positive"); usage(); }
-    if(limit < 0) { fatal_error("limit should be non-negative"); usage(); }
+    if(interval < 0) { usage(); fatal_error("interval should be positive"); }
+    if(limit < 0) { usage(); fatal_error("limit should be non-negative"); }
 
 
     // parse program and its arguments
     // a NULL-terminated argument vector is prepared for execvp
-    if(argc-optind == 0) { fatal_error("no executable supplied"); usage(); }
+    if(argc-optind == 0) { usage(); fatal_error("no executable supplied"); }
     prog = malloc(sizeof *prog * (argc-optind+1));
     for(int prog_idx=optind; prog_idx<argc; ++prog_idx){
         prog[prog_idx - optind] = argv[prog_idx];
