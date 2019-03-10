@@ -13,7 +13,7 @@ buffer create_buffer(){
 
 
 int buffers_equal(const buffer *b1, const buffer *b2){
-    if(b1->size == b2->size && !memcmp(b1->data, b2->data, b1->size)) return 0;
+    if(b1->size == b2->size && !memcmp(b1->data, b2->data, b1->size)) return 1;
     else return 0;
 }
 
