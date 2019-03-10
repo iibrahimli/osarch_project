@@ -35,9 +35,12 @@ int run_prog(char **prog, buffer *output_buf){
         case 0:
             // child
             dup2(fd[1], STDOUT_FILENO);
+
             close(STDERR_FILENO);
             close(fd[0]);
             close(fd[1]);
+
+            // execute program with output redirected to the buffer
             execvp(prog[0], prog);
             break;
         
@@ -45,8 +48,8 @@ int run_prog(char **prog, buffer *output_buf){
             // parent
             close(fd[1]);
             
-            // get the output of the program
-            // read_into_buffer(fd[0], output_buf);
+            // read the output of the program into the buffer
+            read_into_buffer(fd[0], output_buf);
 
             wait(&status);
             return WEXITSTATUS(status);

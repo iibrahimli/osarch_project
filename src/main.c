@@ -25,14 +25,6 @@ int main(int argc, char *argv[]){
     int        chkexit  = DEF_CHKEXIT;
     char **    prog;    // program and argument vector
 
-    // buffers for program output and last output to be compared
-    // these buffers act like the frame buffers in double buffered rendering.
-    // one of them points to current buffer where the program output is written
-    // the other one points to last output to compare with current output
-    // and they are swapped every iteration
-    buffer     out_buf      = create_buffer();
-    buffer     last_out_buf = create_buffer();
-
 
     // parse short arguments
     int option = 0;
@@ -71,11 +63,46 @@ int main(int argc, char *argv[]){
     prog[argc-optind] = NULL;
 
 
-    // execute program for limit iterations (indefinitely if limit == 0)    
-    int prog_status, last_prog_status = 0;
-    int iteration = 0;
-    while(limit == 0 || iteration < limit){
+    // buffers for program output and last output to be compared
+    // one of them points to current buffer where the program output is written
+    // the other one points to last output to compare with current output
+    // and they are swapped every iteration
+    buffer out_buf      = create_buffer();
+    buffer last_out_buf = create_buffer();
 
+    int prog_status, last_prog_status;
+
+    unsigned int iteration = 0;
+    // execute program for limit iterations (indefinitely if limit == 0)
+    while(limit == 0 || iteration < limit){
+        print_time(timefmt);
+
+        if(iteration == 0){
+            // first iteration: print the output
+            // write output to LAST_OUT_BUF directly to avoid an unnecessary swap
+            last_prog_status = run_prog(prog, &last_out_buf);
+            print_buffer(&last_out_buf);
+            if(chkexit) printf("exit: %d\n", last_prog_status);
+        }
+        else{
+            // print only if there is a difference
+            prog_status = run_prog(prog, &out_buf);
+
+            if(!buffers_equal(&out_buf, &last_out_buf)){
+                // print_buffer(&out_buf);
+                // if(chkexit && last_prog_status != prog_status) printf("exit: %d\n", prog_status);
+
+                printf("out_buf size:      %lu\n"
+                       "last_out_buf size: %lu\n", out_buf.size, last_out_buf.size);
+            }
+
+            last_prog_status = prog_status;
+            swap_buffers(&out_buf, &last_out_buf);
+            clear_buffer(&out_buf);
+        }
+
+        ++iteration;
+        usleep(interval);
     }
 
     // deallocate memory

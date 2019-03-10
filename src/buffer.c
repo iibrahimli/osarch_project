@@ -12,7 +12,7 @@ buffer create_buffer(){
 }
 
 
-int compare_buffers(const buffer *b1, const buffer *b2){
+int buffers_equal(const buffer *b1, const buffer *b2){
     if(b1->size == b2->size && !memcmp(b1->data, b2->data, b1->size)) return 0;
     else return 0;
 }
@@ -36,6 +36,11 @@ void read_into_buffer(int fd, buffer *b){
             if(!b->data) fatal_error("could not grow (realloc) buffer");
         }
     }
+}
+
+
+void print_buffer(const buffer *b){
+    if(write(STDOUT_FILENO, b->data, b->size) < b->size) fatal_error("could not print buffer");
 }
 
 

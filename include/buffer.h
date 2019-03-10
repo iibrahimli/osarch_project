@@ -23,7 +23,7 @@ buffer create_buffer();
 
 
 // returns 1 if the buffers are the same, 0 otherwise
-int compare_buffers(const buffer *b1, const buffer *b2);
+int buffers_equal(const buffer *b1, const buffer *b2);
 
 
 // clears contents of a buffer, resets it to default size
@@ -32,6 +32,10 @@ void clear_buffer(buffer *b);
 
 // reads from FD into B, growing B if needed
 void read_into_buffer(int fd, buffer *b);
+
+
+// print used bytes of B
+void print_buffer(const buffer *b);
 
 
 // swaps the contents of the buffers
