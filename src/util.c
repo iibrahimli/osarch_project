@@ -20,7 +20,6 @@ void usage(void){
 
 int run_prog(char **prog, buffer *output_buf){
     int status=0;
-    int rd;
 
     int fd[2];
     if(pipe(fd) == -1) fatal_error("could not create pipe");

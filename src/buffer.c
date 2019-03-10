@@ -6,8 +6,8 @@ buffer create_buffer(){
     buffer r;
     r.size = 0;
     r.capacity = DEF_BUF_SIZE;
-    r.data = calloc(DEF_BUF_SIZE, sizeof *r.data);
-    if(!r.data) fatal_error("could not calloc buffer");
+    r.data = malloc(DEF_BUF_SIZE);
+    if(!r.data) fatal_error("could not malloc buffer");
     return r;
 }
 
@@ -19,10 +19,12 @@ int buffers_equal(const buffer *b1, const buffer *b2){
 
 
 void clear_buffer(buffer *b){
+    static char *tmp;
     b->size = 0;
     b->capacity = DEF_BUF_SIZE;
-    b->data = realloc(b->data, b->capacity);
-    if(!b->data) fatal_error("could not realloc buffer");
+    tmp = realloc(b->data, b->capacity);
+    if(!tmp) { free(b->data); fatal_error("could not realloc buffer"); }
+    else b->data = tmp;
 }
 
 
@@ -63,6 +65,6 @@ void swap_buffers(buffer *b1, buffer *b2){
 void destroy_buffer(buffer *b){
     b->size = 0;
     b->capacity = 0;
-    b->data = NULL;
     free(b->data);
+    b->data = NULL;
 }
