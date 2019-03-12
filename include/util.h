@@ -20,8 +20,8 @@ void fatal_error(const char *cause);
 void usage(void);
 
 
-// runs PROG in a child process, waiting for its exit.
-// writes output into OUTPUT_BUF using the pipe FD, and
+// runs PROG in a child process, waiting for
+// its exit. writes output into OUTPUT_BUF and
 // returns the child's exit code
 int run_prog(char **prog, buffer *output_buf);
 
