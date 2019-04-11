@@ -1,8 +1,11 @@
-*.pdf
+.vscode/
 build/
 data/
-.vscode
+cov_html/
+*.pdf
 *.zip
 *.log
-detecter
 *.tmp
+*.png
+detecter
+makefile_old
